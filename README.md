@@ -1,4 +1,5 @@
-# 🚀 Lead Qualifier & AI Intent Classifier ## [Demo Link](https://drive.google.com/file/d/1YQzE-0wK7Uczb5hPoIIxj8UcliPfp9XM/view?usp=sharing)
+# 🚀 Lead Qualifier & AI Intent Classifier 
+## [Demo Link](https://drive.google.com/file/d/1YQzE-0wK7Uczb5hPoIIxj8UcliPfp9XM/view?usp=sharing)
 
 Welcome to your **Lead Qualifier party** 🤖🎉!  
 This **n8n-powered workflow** is here to catch incoming leads from your Gmail, analyze their buying intent with AI, and then log and alert your team accordingly.  
