@@ -1,140 +1,129 @@
-# 🧾 Lead Qualification Automation with n8n
+🚀 Lead Qualifier & AI Intent Classifier
 
-## 📘 Overview
-This workflow automates the **lead qualification process** from incoming emails.  
-It connects **Gmail**, **OpenAI**, **Google Sheets**, **Slack**, and **Google Calendar** to handle leads end-to-end — from extraction to categorization, response, and team notifications.
+Welcome to your Lead Qualifier party 🤖🎉! This n8n-powered workflow is here to catch incoming leads from your Gmail, analyze their buying intent with AI, and then log and alert your team accordingly. It’s like having a smart assistant sorting your leads for you while you sip your latte ☕!
 
----
+🔮 Project Vibe & What It Automates
 
-## ⚙️ Workflow Summary
+Get ready to automate the snooze-worthy task of sorting email leads. Here's the vibe:
 
-| Step | Description |
-|------|--------------|
-| **1. Gmail Trigger** | Starts the workflow when a new email (lead inquiry) arrives in Gmail. |
-| **2. Information Extractor (AI)** | Extracts name, email, company, and message content using OpenAI or a Function node. |
-| **3. Intent Classifier (AI)** | Uses OpenAI to analyze the lead’s message and classify it as **High Intent**, **Medium Intent**, or **Low Intent**. |
-| **4. Branching Logic** | Routes leads based on the classification result. |
-| **5. High Intent Branch** | Adds the lead details to a Google Sheet CRM for the sales team to follow up. |
-| **6. Medium/Low Intent Branch** | Sends an automated Gmail response inviting the lead to schedule a demo via a Google Calendar link. |
-| **7. Slack Notification** | Sends a real-time Slack alert to the sales team with lead details and intent classification. |
-| **8. Google Sheets Logging** | Logs all leads (including confidence score and reasoning) for analytics and tracking. |
+Smart Filtering: Every new email (aka “potential lead”) triggers this flow.
 
----
+AI Brainpower: OpenAI (GPT-4) reads each email and says: “High Intent? Low Intent? Why so?”.
 
-## 🧠 Intent Classification Prompt
+Two Flows:
 
-Below is the system message used in the OpenAI node to categorize lead intent:
+If High Intent, we ping it to a High Priority sheet and notify your team in Slack 🚨.
 
-```text
-You are an expert lead qualification assistant.
-You analyze email messages and classify their buying intent.
+Otherwise, we schedule a demo email and still keep your CRM updated 📊.
 
-Classify each message strictly as:
-- High Intent → wants to purchase, schedule, or discuss pricing soon.
-- Medium Intent → interested but not urgent, wants more information or demo.
-- Low Intent → vague inquiry, exploring, or not ready to buy.
+It’s all wrapped in n8n (an open-source automation ninja), using Gmail, Google Sheets, Slack, and OpenAI. The end result? Automated lead sorting and fast follow-ups, with you as the hero who set it up. 🎯
 
-Respond in JSON:
-{
-  "intent": "High Intent | Medium Intent | Low Intent",
-  "confidence": 0-100,
-  "reason": "Brief 1-2 sentence explanation"
-}
-```
+🛠 Tools & Tech
 
----
+Here’s the tech mix powering this:
 
-## 📨 Automated Email Template (Medium/Low Intent)
+n8n (workflow automation platform) 🤖
 
-HTML version used in Gmail node:
+Gmail – for incoming leads and sending out demo links 📧
 
-```html
-Hi {{ $('Information Extractor').item.json.output.Name }},  
-Thanks for reaching out! We'd love to show you how we can help.  
-You can schedule a quick demo here:  
-<a href="https://calendar.google.com/calendar/u/1/r" target="_blank">Schedule a quick demo</a>  
-<br><br>  
-Best,<br>Sales Team
-```
+Google Sheets – your (cloud) CRM spreadsheet 📑
 
----
+Slack – team notifications in a #new-lead channel 📣
 
-## 📊 Google Sheets Setup
+OpenAI (GPT-4) – brain of the operation classifying intent 🤓🤖
 
-- **Sheet 1 (CRM):** For High Intent leads  
-  Columns: `Timestamp | Name | Email | Company | Message | Intent | Confidence`
+n8n Workflows 🖇️ – We use two flows: the main Lead Qualification flow and a Lead Intent Classification subflow.
 
-- **Sheet 2 (All Leads):** For tracking all intents
+Make sure you have accounts or API creds ready for each. (We’ll remind you to swap out any demo IDs or dummy creds below! 😉)
 
-Make sure to connect your Google Sheets node and select the right Sheet IDs.
+⚙️ Setup Steps (Get This Rolling)
 
----
+Import the Workflows: In your n8n editor, go to Workflow → Import from file and add both workflow JSONs (Lead Qualification and Lead Intent Classification).
 
-## 💬 Slack Integration
+Add Credentials:
 
-**Common Error Fix:**  
-If you get `Slack error response: "not_in_channel"`, invite your bot to the target channel:
-```
-/invite @your-bot-name
-```
+Gmail: Connect your Gmail to n8n (OAuth). This handles email triggers and sending.
 
-**Slack message example:**
-```
-🚨 New Lead Received!
-Name: {{ $json["name"] }}
-Email: {{ $json["email"] }}
-Company: {{ $json["company"] }}
-Intent: {{ $json["intent"] }} (Confidence: {{ $json["confidence"] }}%)
-Summary: {{ $json["reason"] }}
-```
+Google Sheets: Add your Google account to n8n. You’ll need to paste your own spreadsheet ID into the workflow.
 
----
+Slack: Connect your Slack workspace in n8n. Create a channel (e.g. #new-lead) and grab its Channel ID to use in the Slack node.
 
-## 🗓️ Google Calendar Integration
+OpenAI: Link your OpenAI API key as a credential (we’re using GPT-4.1-mini).
 
-You can optionally create an event automatically for Medium/Low Intent leads:
-- Use the **Google Calendar → Create Event** node
-- Add attendee: `{{$json["email"]}}`
-- Use your booking link in the response email
+Configure Google Sheets:
 
----
+Create a new Google Sheet (your CRM). Make two tabs: High Intent and All Leads.
 
-## 🧩 Nodes Used
+In both sheets, add columns: Timestamp, Name, Email, Company, Message, Intent, Confidence.
 
-- **Gmail (Trigger + Send Email)**  
-- **OpenAI (Chat / Text Generation)**  
-- **Google Sheets (Append Row)**  
-- **Slack (Send Message)**  
-- **Google Calendar (Optional: Create Event)**  
-- **IF Node / Switch Node** for branching by intent
+Copy the spreadsheet ID from the URL (the long string in docs.google.com/spreadsheets/d/...) and paste it into both Google Sheets nodes.
 
----
+For the High Intent node, set Sheet Name to your High Intent tab. For All Leads, set it to the All Leads tab (or use the gid).
 
-## 🧰 Setup Instructions
+Replace Demo Values 🤓:
 
-1. Connect integrations:
-   - Gmail  
-   - Google Sheets  
-   - Slack (with `chat:write` permission)  
-   - OpenAI (with valid API key)
-2. Copy the provided workflow to n8n.
-3. Paste the intent classification prompt in your OpenAI node.
-4. Update Google Sheet and Slack channel references.
-5. Execute once manually → then activate the workflow.
+Swap out any example IDs (like the demo spreadsheet ID or Slack channel ID) with yours.
 
----
+Make sure the Gmail trigger is monitoring the right inbox or label for leads.
 
-## 🚀 Result
+Turn Them On! 🟢
 
-With this automation:
-- Every new lead email is instantly analyzed and categorized.
-- High Intent leads go straight into CRM.
-- Medium/Low Intent leads get automated follow-ups.
-- Sales team gets notified in Slack with all lead info.
-- Full tracking happens in Google Sheets.
+Save and activate both workflows in n8n.
 
----
+Send a test email to your Gmail and watch the magic happen.
 
-👨‍💻 **Author:** Pratyush Kumar Jha  
-**Tools Used:** n8n, OpenAI, Google Workspace, Slack API  
-**License:** MIT
+🛑 Heads Up: Double-check all credentials and IDs. If something’s off (e.g. wrong sheet ID), the flow might break. 🔍
+
+📊 How It Works (Step by Step)
+
+1️⃣ New Lead Arrives (Gmail Trigger): When a new email lands, n8n grabs it. The workflow extracts key info: sender name, email, company, and the message content.
+
+2️⃣ AI-Powered Intent Check: That message text is sent to our Lead Intent Classification sub-workflow (AI). GPT-4 reads the email and spits back JSON like {intent: High/Medium/Low, confidence: ##%, reason: "..."}.
+
+3️⃣ Branching Logic: The main workflow looks at the AI’s intent result.
+
+If High Intent: We append the lead (timestamp, name, email, etc.) to the High Intent sheet in Google Sheets. Then a formatted Slack alert fires off (team, look alive! 🚨).
+
+If not high: We don’t put it in High Intent for now; instead we’ll trigger the demo-scheduling email.
+
+4️⃣ Follow-Up Email & Logging:
+
+For any lead (high or not), we append it to the "All Leads" sheet with all details.
+
+If it was not High Intent, we also send out a friendly Gmail inviting them to book a demo.
+
+🎨 Workflow Diagrams (Placeholders)
+
+(Imagine nifty flowcharts here showing the steps!)
+
+Lead Qualification Flow:
+
+A new email triggers the workflow; key info (name, email, company, message) is extracted.
+
+The email text is sent to the Lead Intent Classification sub-workflow (AI).
+
+If High Intent: add the lead to the High Intent sheet 📑 and send a Slack alert 🚨.
+
+If not high: skip the sheet (for now) and send the demo email instead.
+
+In all cases: append the lead to the All Leads sheet (timestamped).
+
+Intent Classification Sub-Flow:
+
+Takes the email text and runs GPT-4 on it.
+
+Outputs a JSON with intent (High/Medium/Low), confidence %, and a brief reason.
+
+📝 Final Checklist
+
+✅ Imported workflows into n8n.
+
+✅ Set up all credentials (Gmail, Slack, Google, OpenAI).
+
+✅ Configured Google Sheets with your own ID and sheet names.
+
+✅ Updated placeholder IDs (Slack channel, sheet ID, etc.).
+
+✅ Activated both workflows.
+
+Once all the ✅s are ticked, send a test email and see it in action! 🎉 🚀 Happy automating!
