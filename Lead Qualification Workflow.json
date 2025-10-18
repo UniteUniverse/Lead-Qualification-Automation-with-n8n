@@ -1,0 +1,562 @@
+{
+  "name": "Lead Qualification Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1104,
+        -224
+      ],
+      "id": "1ed24291-44de-49d7-9856-59d4f2342f7f",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "9EKNwHHfnhvFtLr7",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8ecdebdb-9f17-44a5-b270-a68728a95bff",
+              "leftValue": "High Intent",
+              "rightValue": "={{ $json.output.intent }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -528,
+        -384
+      ],
+      "id": "b8c98ac3-513e-405d-9663-8ad3c997118c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "content": "# Lead Qualification ",
+        "height": 624,
+        "width": 1760
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1408,
+        -576
+      ],
+      "typeVersion": 1,
+      "id": "953880de-f459-4430-ac5e-2d73f6255460",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.from.value[0].name }}{{ $json.from.value[0].address }}{{ $json.text }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "Name",
+              "description": "Name of the sender",
+              "required": true
+            },
+            {
+              "name": "Email",
+              "description": "Email id of the sender",
+              "required": true
+            },
+            {
+              "name": "Company",
+              "description": "Company name of the sender",
+              "required": true
+            },
+            {
+              "name": "Message",
+              "description": "Message sent by the sender",
+              "required": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        -1104,
+        -384
+      ],
+      "id": "04d72fcc-baee-4990-ae1a-cb3d60c74094",
+      "name": "Extract Information"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "vlabkmpcNWOQdk5C",
+          "mode": "list",
+          "cachedResultName": "Lead Intent Classification"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -752,
+        -384
+      ],
+      "id": "59458a05-4da7-4730-bd04-9861d03d8e42",
+      "name": "Intent Classification"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "14-vUghV3jzVDjSpqKZ6oYHBSNQfV6y0H2Jr4qLwaFs0",
+          "mode": "list",
+          "cachedResultName": "CRM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14-vUghV3jzVDjSpqKZ6oYHBSNQfV6y0H2Jr4qLwaFs0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "High Intent",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14-vUghV3jzVDjSpqKZ6oYHBSNQfV6y0H2Jr4qLwaFs0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{$now}}",
+            "Confidence": "={{ $json.output.confidence }}",
+            "Intent": "={{ $json.output.intent }}",
+            "Name": "={{ $('Extract Information').item.json.output.Name }}",
+            "Email": "={{ $('Extract Information').item.json.output.Email }}",
+            "Company": "={{ $('Extract Information').item.json.output.Company }}",
+            "Message": "={{ $('Extract Information').item.json.output.Message }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Intent",
+              "displayName": "Intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Confidence",
+              "displayName": "Confidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -304,
+        -480
+      ],
+      "id": "683d94eb-cd8d-44dc-9ed9-8a1931234be0",
+      "name": "Entry in CRM under High Intent",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "mAQcaPLUUl8WFD1j",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09M2HG1X35",
+          "mode": "list",
+          "cachedResultName": "new-lead"
+        },
+        "text": "=🚨 New Lead Received!\nName: {{ $('Extract Information').item.json.output.Name }}\nEmail: {{ $('Extract Information').item.json.output.Email }}\nCompany: {{ $('Extract Information').item.json.output.Company }}\nIntent: {{ $('Intent Classification').item.json.output.intent }}\nConfidence: {{ $('Intent Classification').item.json.output.confidence }}\nSummary: {{ $('Extract Information').item.json.output.Message }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        -80,
+        -384
+      ],
+      "id": "98f7d007-b7da-4916-83d1-ac2fce235a1e",
+      "name": "Notify The Team",
+      "webhookId": "05a3ef2d-b5d9-4d81-a1d7-ac9d2c2805ec",
+      "credentials": {
+        "slackApi": {
+          "id": "wW5RT0x8nSobOGQo",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "14-vUghV3jzVDjSpqKZ6oYHBSNQfV6y0H2Jr4qLwaFs0",
+          "mode": "list",
+          "cachedResultName": "CRM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14-vUghV3jzVDjSpqKZ6oYHBSNQfV6y0H2Jr4qLwaFs0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 719172601,
+          "mode": "list",
+          "cachedResultName": "All Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14-vUghV3jzVDjSpqKZ6oYHBSNQfV6y0H2Jr4qLwaFs0/edit#gid=719172601"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Extract Information').item.json.output.Name }}",
+            "Email": "={{ $('Extract Information').item.json.output.Email }}",
+            "Company": "={{ $('Extract Information').item.json.output.Company }}",
+            "Message": "={{ $('Extract Information').item.json.output.Message }}",
+            "Intent": "={{ $('Intent Classification').item.json.output.intent }}",
+            "Confidence": "={{ $('Intent Classification').item.json.output.confidence }}",
+            "Timestamp": "={{ $now}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Intent",
+              "displayName": "Intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Confidence",
+              "displayName": "Confidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        144,
+        -384
+      ],
+      "id": "2a26541f-e29f-4407-a5d4-6348eb1ad59e",
+      "name": "ENtry in CRM under All Leads",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "mAQcaPLUUl8WFD1j",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Extract Information').item.json.output.Email }}",
+        "subject": "Let’s schedule a quick demo",
+        "message": "=<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\" />\n    <meta name=\"viewport\" content=\"width=device-width,initial-scale=1\" />\n    <title>Schedule a demo</title>\n  </head>\n\n  <body style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin:0; padding:0; background-color:#f5f7fa;\">\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\">\n      <tr>\n        <td align=\"center\" style=\"padding:24px;\">\n          <table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"background:#ffffff; border-radius:8px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.08);\">\n            <!-- Header -->\n            <tr>\n              <td style=\"padding:24px; text-align:left; border-bottom:1px solid #eef0f3;\">\n                <h1 style=\"margin:0; font-size:20px; color:#111827;\">Thanks for getting in touch</h1>\n              </td>\n            </tr>\n\n            <!-- Body -->\n            <tr>\n              <td style=\"padding:24px; color:#334155; font-size:16px; line-height:1.5;\">\n                <p style=\"margin:0 0 16px 0;\">Hi {{ $('Extract Information').item.json.output.Name }},</p>\n\n                <p style=\"margin:0 0 18px 0;\">\n                  Thanks for reaching out! We'd love to show you how we can help.\n                </p>\n\n                <p style=\"margin:0 0 22px 0;\">\n                  <a href=\"https://calendly.com/fortesting-api-purpose/30min\" target=\"_blank\" rel=\"noopener\" style=\"display:inline-block; padding:12px 20px; border-radius:6px; text-decoration:none; font-weight:600; background:#0b74de; color:#ffffff;\">\n                    Schedule a quick demo\n                  </a>\n                </p>\n\n                <p style=\"margin:0 0 8px 0; font-size:14px; color:#475569;\">\n                  If the button doesn't work, use this link:\n                  <br />\n                  <a href=\"https://calendly.com/fortesting-api-purpose/30min\" target=\"_blank\" rel=\"noopener\" style=\"color:#0b74de; word-break:break-all;\">https://calendly.com/fortesting-api-purpose/30min</a>\n                </p>\n\n                <p style=\"margin:18px 0 0 0;\">\n                  Best,<br />\n                  <strong>Sales Team</strong>\n                </p>\n              </td>\n            </tr>\n\n            <!-- Footer -->\n            <tr>\n              <td style=\"padding:16px 24px; font-size:12px; color:#94a3b8; border-top:1px solid #eef0f3;\">\n                <small>If you'd prefer not to receive scheduling emails, reply with \"unsubscribe\".</small>\n              </td>\n            </tr>\n\n          </table>\n        </td>\n      </tr>\n    </table>\n  </body>\n</html>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -304,
+        -288
+      ],
+      "id": "71d43165-7754-4f5b-9bd1-71873d41109f",
+      "name": "Schedule a Demo",
+      "webhookId": "213eb9cd-54e7-4462-afff-0a0d6e334fcb",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "VTJzxidDBcNKtWh1",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1328,
+        -384
+      ],
+      "id": "d4c7b34e-e1c1-466f-ac79-acc77704397f",
+      "name": "New Lead",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "VTJzxidDBcNKtWh1",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Extract Information",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Entry in CRM under High Intent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Schedule a Demo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Information": {
+      "main": [
+        [
+          {
+            "node": "Intent Classification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Intent Classification": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Entry in CRM under High Intent": {
+      "main": [
+        [
+          {
+            "node": "Notify The Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify The Team": {
+      "main": [
+        [
+          {
+            "node": "ENtry in CRM under All Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule a Demo": {
+      "main": [
+        [
+          {
+            "node": "Notify The Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Lead": {
+      "main": [
+        [
+          {
+            "node": "Extract Information",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6e4c9ed0-d586-4467-ae33-22915626ce26",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4764540811cbb8d2e1efff249fe019f120efdfc1d1ad5d0e40382bf91ca0b3dc"
+  },
+  "id": "r7NM3Lm3wuw03sHc",
+  "tags": []
+}
